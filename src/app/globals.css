@@ -1,0 +1,296 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Ceyteq design system — 3D neumorphic, ASH ONLY.
+   The entire app background is ash grey. Blue is used ONLY for buttons,
+   highlights, icons and dark panels. Depth comes from shadows, not borders.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Self-hosted variable fonts (bundled via Fontsource — no external requests). */
+@import "@fontsource-variable/manrope";
+@import "@fontsource-variable/sora";
+
+@import "tailwindcss";
+
+:root {
+  /* Ash surfaces */
+  --bg: #e4e4e6;
+  --bg-2: #eaeaec;
+  --surface: #e8e8ea;
+  --surface-grad: linear-gradient(145deg, #efeff1, #e2e2e5);
+
+  /* Neumorphic shadows */
+  --shadow-light: #ffffff;
+  --shadow-dark: #c5c5ca;
+
+  /* Brand blues (from the Ceyteq logo) */
+  --navy: #10244a; /* logo "TEQ" — headings, dark panels */
+  --navy-deep: #0b1830;
+  --navy-panel: #14213d;
+  --blue: #2e86c1; /* primary button gradient end */
+  --radium: #4db8e8; /* logo sky blue — glows, highlights, icons */
+  --radium-light: #8fdbf7; /* logo light highlight */
+
+  /* Text + semantics */
+  --text-body: #5a6070;
+  --text-soft: #8a90a2;
+  --success: #2e9e6b;
+  --danger: #d64545;
+  --warning: #d9962b;
+
+  /* Depth recipes */
+  --raised: 12px 12px 28px var(--shadow-dark), -12px -12px 28px var(--shadow-light);
+  --raised-sm: 7px 7px 16px var(--shadow-dark), -7px -7px 16px var(--shadow-light);
+  --raised-lg: 18px 18px 42px #bdbdc3, -18px -18px 42px var(--shadow-light);
+  --inset: inset 6px 6px 14px var(--shadow-dark), inset -6px -6px 14px var(--shadow-light);
+  --inset-sm: inset 4px 4px 9px var(--shadow-dark), inset -4px -4px 9px var(--shadow-light);
+  --glow: 0 8px 24px rgba(77, 184, 232, 0.35);
+  --dark-panel-shadow:
+    14px 14px 30px rgba(11, 24, 48, 0.35), -10px -10px 26px var(--shadow-light),
+    inset 0 1px 0 rgba(143, 219, 247, 0.45), inset 0 0 26px rgba(77, 184, 232, 0.14),
+    0 0 0 1px rgba(77, 184, 232, 0.22);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-blue-brand: var(--blue);
+  --color-radium: var(--radium);
+  --color-radium-light: var(--radium-light);
+  --color-body: var(--text-body);
+  --color-soft: var(--text-soft);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+
+  --font-display: "Sora Variable", "Sora", "Manrope Variable", system-ui, sans-serif;
+  --font-sans: "Manrope Variable", "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --shadow-raised: var(--raised);
+  --shadow-raised-sm: var(--raised-sm);
+  --shadow-raised-lg: var(--raised-lg);
+  --shadow-inset-soft: var(--inset);
+  --shadow-inset-soft-sm: var(--inset-sm);
+  --shadow-glow: var(--glow);
+  --shadow-dark-panel: var(--dark-panel-shadow);
+
+  --radius-card: 28px;
+  --radius-card-lg: 32px;
+}
+
+/* ── Base: ash everywhere, no white gaps ─────────────────────────────────── */
+html {
+  background: var(--bg);
+  scroll-padding-top: 96px;
+}
+
+body {
+  min-height: 100dvh;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 55%, var(--bg) 100%);
+  background-attachment: fixed;
+  color: var(--text-body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(77, 184, 232, 0.35);
+  color: var(--navy-deep);
+}
+
+/* Ash scrollbar (no white gutters) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b9b9c0 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #b9b9c0;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--navy);
+}
+
+/* Focus visibility that matches the brand */
+:focus-visible {
+  outline: 2px solid var(--radium);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ── Depth utilities ─────────────────────────────────────────────────────── */
+.neu-raised {
+  background: var(--surface-grad);
+  box-shadow: var(--raised);
+}
+.neu-raised-sm {
+  background: var(--surface-grad);
+  box-shadow: var(--raised-sm);
+}
+.neu-raised-lg {
+  background: var(--surface-grad);
+  box-shadow: var(--raised-lg);
+}
+.neu-inset {
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+.neu-inset-sm {
+  background: var(--surface);
+  box-shadow: var(--inset-sm);
+}
+
+/* Interactive raised card: lift on hover */
+.neu-lift {
+  transition: transform 250ms ease, box-shadow 250ms ease;
+}
+.neu-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 16px 16px 36px #bcbcc2, -14px -14px 32px var(--shadow-light);
+}
+
+/* Dark navy 3D panel with radium rim glow */
+.neu-dark {
+  background: linear-gradient(150deg, var(--navy-panel) 0%, var(--navy-deep) 100%);
+  box-shadow: var(--dark-panel-shadow);
+  color: #dbe9f7;
+}
+
+/* Primary button: navy → blue gradient, white text, radium glow */
+.btn-primary {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  color: #fff;
+  box-shadow: var(--raised-sm), var(--glow);
+  transition: transform 250ms ease, box-shadow 250ms ease, opacity 250ms ease;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--raised), 0 12px 30px rgba(77, 184, 232, 0.45);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--inset-sm), 0 4px 14px rgba(77, 184, 232, 0.3);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Secondary (neumorphic ghost) button */
+.btn-neu {
+  background: var(--surface-grad);
+  box-shadow: var(--raised-sm);
+  color: var(--navy);
+  transition: transform 250ms ease, box-shadow 250ms ease, opacity 250ms ease;
+}
+.btn-neu:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--raised);
+}
+.btn-neu:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--inset-sm);
+}
+.btn-neu:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Inset text input */
+.input-inset {
+  background: var(--surface);
+  box-shadow: var(--inset);
+  color: var(--navy);
+  transition: box-shadow 250ms ease;
+}
+.input-inset::placeholder {
+  color: var(--text-soft);
+}
+.input-inset:focus {
+  outline: none;
+  box-shadow: var(--inset), 0 0 0 2px rgba(77, 184, 232, 0.55);
+}
+
+/* Logo treatment — soft designed drop shadow under the 3D mark */
+.logo-3d {
+  filter: drop-shadow(0 10px 18px rgba(16, 36, 74, 0.22));
+}
+
+/* Radium edge bar for the active navigation item */
+.nav-active-bar {
+  position: relative;
+}
+.nav-active-bar::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 20%;
+  bottom: 20%;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--radium-light), var(--radium));
+  box-shadow: 0 0 10px rgba(77, 184, 232, 0.8);
+}
+
+/* Honeypot field — invisible to humans, tempting to bots. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Gentle entrance */
+@keyframes ceyteq-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: ceyteq-rise 500ms ease both;
+}
+
+@keyframes ceyteq-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(77, 184, 232, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(77, 184, 232, 0);
+  }
+}
+.animate-pulse-glow {
+  animation: ceyteq-pulse-glow 2.4s ease-in-out infinite;
+}
+
+/* Respect reduced motion everywhere */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .neu-lift:hover,
+  .btn-primary:hover:not(:disabled),
+  .btn-neu:hover:not(:disabled) {
+    transform: none;
+  }
+}
