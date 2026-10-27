@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { signInAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { OTP_LENGTH } from "@/lib/otp";
 import { ArrowRightIcon, EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "@/components/icons";
 
 export function LoginForm({ resetDone = false }: { resetDone?: boolean }) {
@@ -97,7 +98,7 @@ export function LoginForm({ resetDone = false }: { resetDone?: boolean }) {
 
       <p className="text-center text-xs leading-relaxed text-soft">
         Protected by two-step verification — after your password, we email a
-        6-digit code to confirm it&apos;s really you.
+        {OTP_LENGTH}-digit code to confirm it&apos;s really you.
       </p>
     </form>
   );

@@ -6,6 +6,7 @@ import { resendOtpAction, verifyOtpAction } from "@/app/auth/actions";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ShieldIcon } from "@/components/icons";
+import { OTP_LENGTH } from "@/lib/otp";
 
 const RESEND_COOLDOWN = 60; // seconds
 
@@ -32,7 +33,7 @@ export function VerifyForm({ email }: { email: string | null }) {
           <ShieldIcon className="h-5.5 w-5.5" />
         </span>
         <p className="text-sm leading-relaxed text-body">
-          We sent a 6-digit code to{" "}
+          We sent a {OTP_LENGTH}-digit code to{" "}
           <strong className="font-bold text-navy">{email ?? "your email"}</strong>. It
           expires soon and can be used once. Check your spam folder if it
           doesn&apos;t arrive within a minute.

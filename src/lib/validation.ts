@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { OTP_LENGTH, OTP_REGEX } from "@/lib/otp";
+
 /** Shared Zod schemas — used on the server for every auth boundary. */
 
 export const emailSchema = z
@@ -26,7 +28,7 @@ export const otpSchema = z.object({
   token: z
     .string()
     .trim()
-    .regex(/^\d{6}$/, "Enter the 6-digit code."),
+    .regex(OTP_REGEX, `Enter the ${OTP_LENGTH}-digit code.`),
 });
 
 export const resetRequestSchema = z.object({

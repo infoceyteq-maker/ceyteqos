@@ -7,6 +7,7 @@ import { requestPasswordResetAction, resetPasswordAction } from "@/app/auth/acti
 import { OtpInput } from "@/components/auth/OtpInput";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "@/components/icons";
+import { OTP_LENGTH } from "@/lib/otp";
 
 /* ── Step 1: request the reset code ──────────────────────────────────────── */
 
@@ -23,7 +24,7 @@ export function ForgotPasswordForm() {
 
       <p className="text-sm leading-relaxed text-body">
         Enter your account email. If an account exists for it, we&apos;ll send a
-        6-digit reset code.
+        {OTP_LENGTH}-digit reset code.
       </p>
 
       <div>
@@ -122,7 +123,7 @@ export function ResetPasswordForm() {
       )}
 
       <p className="text-center text-sm leading-relaxed text-body">
-        Enter the 6-digit code from your email, then choose a new password.
+        Enter the {OTP_LENGTH}-digit code from your email, then choose a new password.
       </p>
 
       <OtpInput />
