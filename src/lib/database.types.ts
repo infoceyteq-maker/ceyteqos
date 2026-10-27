@@ -38,3 +38,37 @@ export interface AuditLog {
   metadata: Record<string, unknown>;
   created_at: string;
 }
+
+export type SubmissionStatus =
+  | "new"
+  | "contacted"
+  | "qualified"
+  | "converted"
+  | "rejected";
+
+/** Public restaurant enquiry (0002_restaurant_submissions.sql). */
+export interface RestaurantSubmission {
+  id: string;
+  restaurant_name: string;
+  contact_name: string | null;
+  email: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  address: string | null;
+  city: string | null;
+  country: string;
+  website: string | null;
+  google_maps_url: string | null;
+  cuisine_type: string | null;
+  branches_count: number | null;
+  message: string | null;
+  source: string;
+  status: SubmissionStatus;
+  payload: Record<string, unknown>;
+  department_id: string | null;
+  assigned_to: string | null;
+  ip_hash: string | null;
+  user_agent: string | null;
+  created_at: string;
+  updated_at: string;
+}

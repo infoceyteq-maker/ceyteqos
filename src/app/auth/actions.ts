@@ -109,7 +109,7 @@ export async function signInAction(
 
   // The password session is a *pre-OTP* session. Clear any previous
   // second-factor flag so the OTP step can never be skipped, then email
-  // a fresh 6-digit code. Middleware blocks /dashboard until verified.
+  // a fresh verification code. Middleware blocks /dashboard until verified.
   await supabase.auth.updateUser({ data: { mfa_verified_at: null } });
 
   const { error: otpError } = await supabase.auth.signInWithOtp({
@@ -134,7 +134,7 @@ export async function signInAction(
   redirect("/verify");
 }
 
-/* ── Step 2: 6-digit email OTP ───────────────────────────────────────────── */
+/* ── Step 2: email OTP code ───────────────────────────────────────────── */
 
 export async function verifyOtpAction(
   _prev: AuthFormState | undefined,
