@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { ContactFooter } from "@/components/ContactFooter";
 import { ActivityIcon, DepartmentsIcon, ShieldIcon } from "@/components/icons";
+import { REQUIRE_EMAIL_OTP } from "@/lib/otp";
 import { siteConfig } from "@/lib/site-config";
 
 /**
@@ -36,8 +37,10 @@ export function AuthShell({
             {[
               {
                 icon: <ShieldIcon className="h-5 w-5" />,
-                title: "Two-step sign-in",
-                text: "Password plus a one-time email code on every login.",
+                title: REQUIRE_EMAIL_OTP ? "Two-step sign-in" : "Secure sign-in",
+                text: REQUIRE_EMAIL_OTP
+                  ? "Password plus a one-time email code on every login."
+                  : "Staff accounts, role-based access and idle timeouts.",
               },
               {
                 icon: <DepartmentsIcon className="h-5 w-5" />,

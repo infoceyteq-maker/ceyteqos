@@ -72,3 +72,53 @@ export const profileUpdateSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type OtpInput = z.infer<typeof otpSchema>;
+
+/* ── Restaurant submissions (public Digital Race intake) ─────────────────── */
+
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((v) => (v ? v : undefined));
+
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .transform((v) => (v ? v : undefined))
+  .refine((v) => v === undefined || /^https?:\/\//i.test(v), {
+    message: "URL must start with http:// or https://",
+  });
+
+export const restaurantSubmissionSchema = z.object({
+  restaurant_name: z.string().trim().min(2, "Restaurant name is required.").max(160),
+  contact_name: optionalText(120),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .max(254)
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .refine((v) => v === undefined || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), {
+      message: "Enter a valid email address.",
+    }),
+  phone: optionalText(40),
+  whatsapp: optionalText(40),
+  address: optionalText(300),
+  city: optionalText(120),
+  country: optionalText(120),
+  website: optionalUrl,
+  google_maps_url: optionalUrl,
+  cuisine_type: optionalText(120),
+  branches_count: z.coerce.number().int().min(0).max(10000).optional(),
+  message: optionalText(2000),
+  source: optionalText(80),
+  /** Honeypot — must stay empty. */
+  companyWebsite: z.string().max(0).optional().default(""),
+});
+
+export type RestaurantSubmissionInput = z.infer<typeof restaurantSubmissionSchema>;

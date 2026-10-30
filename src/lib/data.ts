@@ -4,7 +4,8 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import type { AuditLog, Department, Profile } from "@/lib/database.types";
+import type { AuditLog, Department, Profile, RestaurantSubmission } from "@/lib/database.types";
+import { REQUIRE_EMAIL_OTP } from "@/lib/otp";
 
 /**
  * Server-side data access for the dashboard. Everything runs through the
@@ -21,9 +22,10 @@ export const getCurrentProfile = cache(async (): Promise<Profile> => {
 
   if (!user) redirect("/login");
 
-  // Defence in depth — middleware already enforces the second factor.
+  // Defence in depth — middleware already enforces the second factor
+  // when the email-OTP step is enabled (see src/lib/otp.ts).
   const meta = user.user_metadata as Record<string, unknown> | undefined;
-  if (!meta?.mfa_verified_at) redirect("/verify");
+  if (REQUIRE_EMAIL_OTP && !meta?.mfa_verified_at) redirect("/verify");
 
   const { data } = await supabase
     .from("profiles")
@@ -128,6 +130,20 @@ export async function getOverviewData(userId: string): Promise<OverviewData> {
     recentActivity: (activityRes.data ?? []) as AuditLog[],
     departments,
   };
+}
+
+/**
+ * Restaurant enquiry submissions (Digital Race intake). Runs through RLS:
+ * Super Master Admin sees all, heads their subtree, assignees their own.
+ */
+export async function getRestaurantSubmissions(limit = 50): Promise<RestaurantSubmission[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("restaurant_submissions")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []) as RestaurantSubmission[];
 }
 
 /** Latest successful login (for the Settings → Sessions card). */

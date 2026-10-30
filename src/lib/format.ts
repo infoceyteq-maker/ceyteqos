@@ -67,6 +67,7 @@ export const AUDIT_LABELS: Record<string, string> = {
   password_reset_requested: "Password reset requested",
   password_reset: "Password reset completed",
   password_changed: "Password changed",
+  restaurant_submission_created: "Restaurant submission received",
 };
 
 export function auditLabel(action: string): string {

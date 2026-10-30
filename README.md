@@ -36,9 +36,11 @@ only the env vars differ per environment.
    Singapore `ap-southeast-1`).
 2. **Apply the schema:** go to **SQL Editor → New query**, paste the whole
    contents of [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql)
-   and run it. It creates `departments`, `profiles`, `audit_logs`, enables
-   Row Level Security with hierarchy policies, and installs the
-   “new user → profile” trigger. Safe to re-run.
+   and run it, then do the same for
+   [`supabase/migrations/0002_restaurant_submissions.sql`](supabase/migrations/0002_restaurant_submissions.sql).
+   Together they create `departments`, `profiles`, `audit_logs` and
+   `restaurant_submissions`, enable Row Level Security with hierarchy
+   policies, and install the “new user → profile” trigger. Safe to re-run.
    *(Alternative with the CLI: `supabase link --project-ref <ref>` then `supabase db push`.)*
 3. **Authentication settings** — **Authentication → URL Configuration**:
    - Site URL: `http://localhost:3000` (change to your Vercel domain later)
@@ -93,23 +95,32 @@ npm run dev
 ```
 
 Then open <http://localhost:3000> → sign in with `ADMIN_EMAIL` /
-`ADMIN_PASSWORD` → enter the 6-digit code from your inbox → dashboard.
+`ADMIN_PASSWORD` → you land directly on the dashboard. (If
+`NEXT_PUBLIC_REQUIRE_EMAIL_OTP=true`, you first enter the code from your
+inbox on `/verify`.)
 
-> The seeded admin's email is pre-confirmed (so first login works
-> immediately), but the **email OTP is still required on every sign-in**.
+> The seeded admin's email is pre-confirmed, so first login works immediately.
 
 ## How sign-in works
 
 1. `/login` — email + password (Supabase Auth). Identical error for unknown
-   email and wrong password; honeypot + rate limits + audit log.
-2. A 6-digit code is emailed (Supabase Email OTP). The session exists but is
-   marked **pre-OTP** — middleware blocks `/dashboard/*` until step 3.
-3. `/verify` — code entry (auto-advance, paste, 60 s resend cooldown, max
-   3 resends/hour). On success the session is stamped `mfa_verified_at`.
-4. `/dashboard` — 30-minute **idle timeout**; signing out (or idling out)
-   clears the stamp, so the next login always needs a fresh code.
-5. `/forgot-password` → `/reset-password` reuse the same code mechanism;
-   after a reset, **all** sessions are signed out.
+   email and wrong password; honeypot + rate limits + audit log. The
+   account must also have an **active `profiles` row** in this system —
+   auth users belonging to other apps on a shared Supabase instance are
+   rejected with the same generic error.
+2. **Default (`NEXT_PUBLIC_REQUIRE_EMAIL_OTP=false`):** the session is
+   stamped `mfa_verified_at`, the login is audited, and you are redirected
+   straight to `/dashboard`.
+3. **Optional (`=true`):** an 8-digit code is emailed (Supabase Email OTP).
+   The session is **pre-OTP** — middleware blocks `/dashboard/*` until
+   `/verify` succeeds (auto-advance digit boxes, paste, 60 s resend
+   cooldown, max 3 resends/hour). Enable this only after setup steps 5–6
+   (code template + custom SMTP); without them nobody can receive a code.
+4. `/dashboard` — 30-minute **idle timeout**; signing out clears the stamp.
+5. `/forgot-password` → `/reset-password` always use an emailed code
+   (needs steps 5–6); after a reset, **all** sessions are signed out.
+   Until then, an admin password can be reset with `npm run seed` or from
+   Supabase **Authentication → Users**.
 
 Every `login`, `login_failed`, `otp_sent`, `otp_verified`, `otp_failed`,
 `logout` and password event is written to `audit_logs` with an **HMAC-hashed
@@ -146,7 +157,8 @@ src/
     auth/actions.ts     server actions for every auth step
     dashboard/          shell + Overview, Departments, Employees, Settings,
                         + placeholders (leads, studio, websites, more)
-    api/health/         GET /api/health — app + Supabase connectivity
+    api/health/         GET /api/health — app + per-table Supabase checks
+    api/restaurant-submissions/  POST (public intake) · GET (staff, RLS)
   components/           brand (Logo), auth forms, dashboard chrome, icons
   lib/
     modules.ts          ★ module registry (navigation source of truth)

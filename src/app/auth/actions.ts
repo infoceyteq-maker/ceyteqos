@@ -11,6 +11,7 @@ import {
   isRateLimited,
 } from "@/lib/api-helpers";
 import { logAudit } from "@/lib/audit";
+import { REQUIRE_EMAIL_OTP } from "@/lib/otp";
 import {
   changePasswordSchema,
   loginSchema,
@@ -89,7 +90,10 @@ export async function signInAction(
     return { error: GENERIC_CREDENTIAL_ERROR };
   }
 
-  // Credentials are valid. Enforce account status (Phase 1: seeded admin).
+  // Credentials are valid. This is a staff-only system on a shared
+  // Supabase instance (other Ceyteq apps have their own auth users), so a
+  // password alone is not enough: the account must have an ACTIVE profile
+  // in this system. Anything else gets the generic credential error.
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from("profiles")
@@ -97,7 +101,17 @@ export async function signInAction(
     .eq("id", data.user.id)
     .maybeSingle();
 
-  if (profile && profile.status !== "active") {
+  if (!profile) {
+    await supabase.auth.signOut();
+    await logAudit("login_failed", {
+      userId: data.user.id,
+      email,
+      metadata: { reason: "no_profile" },
+    });
+    return { error: GENERIC_CREDENTIAL_ERROR };
+  }
+
+  if (profile.status !== "active") {
     await supabase.auth.signOut();
     await logAudit("login_failed", {
       userId: data.user.id,
@@ -105,6 +119,17 @@ export async function signInAction(
       metadata: { reason: `status:${profile.status}` },
     });
     return { error: "This account is not active. Please contact your administrator." };
+  }
+
+  // Password-only mode (default — see src/lib/otp.ts): the session is
+  // fully authenticated now. Stamp it exactly like a completed OTP step
+  // would, audit the login, and go straight to the dashboard.
+  if (!REQUIRE_EMAIL_OTP) {
+    await supabase.auth.updateUser({
+      data: { mfa_verified_at: new Date().toISOString() },
+    });
+    await logAudit("login", { userId: data.user.id, email });
+    redirect("/dashboard");
   }
 
   // The password session is a *pre-OTP* session. Clear any previous
