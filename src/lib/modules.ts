@@ -58,8 +58,8 @@ export const modules: AppModule[] = [
     label: "Leads & Forms",
     icon: "leads",
     href: "/dashboard/leads",
-    status: "soon",
-    blurb: "Capture, qualify and route enquiries from every channel.",
+    status: "live",
+    blurb: "Restaurant enquiries from the Digital Race intake, newest first.",
   },
   {
     key: "studio",

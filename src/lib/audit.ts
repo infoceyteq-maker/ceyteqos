@@ -22,7 +22,8 @@ export type AuditAction =
   | "logout"
   | "password_reset_requested"
   | "password_reset"
-  | "password_changed";
+  | "password_changed"
+  | "restaurant_submission_created";
 
 export async function logAudit(
   action: AuditAction,

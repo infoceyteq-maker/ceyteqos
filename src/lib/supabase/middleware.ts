@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { REQUIRE_EMAIL_OTP } from "@/lib/otp";
+
 /**
  * Session gate for every request.
  *
@@ -89,9 +91,13 @@ export async function updateSession(request: NextRequest) {
     return res;
   }
 
-  const otpVerified = Boolean(
-    (user.user_metadata as Record<string, unknown> | undefined)?.mfa_verified_at,
-  );
+  // When the email-OTP second step is disabled (see src/lib/otp.ts), a
+  // valid password session is fully authenticated — treat it as verified.
+  const otpVerified =
+    !REQUIRE_EMAIL_OTP ||
+    Boolean(
+      (user.user_metadata as Record<string, unknown> | undefined)?.mfa_verified_at,
+    );
 
   // ── Route rules for signed-in users ──────────────────────────────────────
   if (isDashboard && !otpVerified) {

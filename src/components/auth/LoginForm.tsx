@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { signInAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/auth/SubmitButton";
-import { OTP_LENGTH } from "@/lib/otp";
+import { OTP_LENGTH, REQUIRE_EMAIL_OTP } from "@/lib/otp";
 import { ArrowRightIcon, EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "@/components/icons";
 
 export function LoginForm({ resetDone = false }: { resetDone?: boolean }) {
@@ -97,8 +97,17 @@ export function LoginForm({ resetDone = false }: { resetDone?: boolean }) {
       </SubmitButton>
 
       <p className="text-center text-xs leading-relaxed text-soft">
-        Protected by two-step verification — after your password, we email a
-        {OTP_LENGTH}-digit code to confirm it&apos;s really you.
+        {REQUIRE_EMAIL_OTP ? (
+          <>
+            Protected by two-step verification — after your password, we email a{" "}
+            {OTP_LENGTH}-digit code to confirm it&apos;s really you.
+          </>
+        ) : (
+          <>
+            Staff only — sign in with your Ceyteq email and password. Every
+            sign-in is recorded in the audit log.
+          </>
+        )}
       </p>
     </form>
   );

@@ -95,7 +95,9 @@ async function main() {
   }
 
   console.log(`✓ Super Master Admin ready: ${email}`);
-  console.log("  Sign in with the password from ADMIN_PASSWORD, then enter the 6-digit code emailed to you.");
+  console.log(
+    "  Sign in with ADMIN_EMAIL / ADMIN_PASSWORD. (If NEXT_PUBLIC_REQUIRE_EMAIL_OTP=true, also enter the code emailed to you.)",
+  );
 }
 
 void main();

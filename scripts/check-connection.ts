@@ -1,13 +1,16 @@
 /**
  * npm run check:db
  * Verifies that .env.local points at a reachable Supabase project and that
- * the Phase 1 migration has been applied. Prints one clear line:
+ * every app table (migrations 0001 + 0002) has been applied. Prints one
+ * line per check plus a final verdict:
  *   Supabase connected: OK   /   Supabase connected: FAIL (reason)
  */
 import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 
 config({ path: ".env.local" });
+
+const TABLES = ["departments", "profiles", "audit_logs", "restaurant_submissions"] as const;
 
 async function main() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -34,17 +37,22 @@ async function main() {
       console.log(`Supabase connected: FAIL (auth: ${authError.message})`);
       process.exit(1);
     }
+    console.log("✓ auth service reachable");
 
-    // 2) Phase 1 tables present?
-    const { error: tableError } = await supabase
-      .from("departments")
-      .select("id", { head: true, count: "exact" });
+    // 2) All app tables present?
+    for (const table of TABLES) {
+      const { error } = await supabase
+        .from(table)
+        .select("id", { head: true, count: "exact" });
 
-    if (tableError) {
-      console.log(
-        `Supabase connected: FAIL (database: ${tableError.message} — has supabase/migrations/0001_init.sql been run?)`,
-      );
-      process.exit(1);
+      if (error) {
+        console.log(`✗ table ${table}: ${error.message}`);
+        console.log(
+          "Supabase connected: FAIL (database: has supabase/migrations/0001_init.sql and 0002_restaurant_submissions.sql been run?)",
+        );
+        process.exit(1);
+      }
+      console.log(`✓ table ${table}`);
     }
 
     console.log("Supabase connected: OK");
